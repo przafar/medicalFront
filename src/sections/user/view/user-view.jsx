@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -21,6 +21,7 @@ import UserTableHead from '../user-table-head';
 import TableEmptyRows from '../table-empty-rows';
 import UserTableToolbar from '../user-table-toolbar';
 import { emptyRows, applyFilter, getComparator } from '../utils';
+import axios from 'axios';
 
 // ----------------------------------------------------------------------
 
@@ -95,6 +96,22 @@ export default function   UserPage() {
   });
 
   const notFound = !dataFiltered.length && !!filterName;
+  const [patients, setPatients] = useState([])
+
+  useEffect(() => {
+    axios.get('http://192.168.110.136:3001/api/patients', {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    })
+      .then((res) => {
+        console.log(res.data.data);
+        setPatients(res.data.data)
+      })
+      .catch((err) => {
+        console.log('Ошибка при загрузке пациентов:', err);
+      })
+  }, [])
 
   return (
     <Container>
@@ -115,6 +132,9 @@ export default function   UserPage() {
 
         <Scrollbar>
           <TableContainer sx={{ overflow: 'unset' }}>
+            {/* {patients.map(patient => (
+              <div>{patient.id}</div>
+            ))} */}
             <Table sx={{ minWidth: 800 }}>
               <UserTableHead
                 order={order}
@@ -125,27 +145,27 @@ export default function   UserPage() {
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
                   { id: 'name', label: 'Name' },
-                  { id: 'company', label: 'Company' },
-                  { id: 'role', label: 'Role' },
+                  { id: 'company', label: 'Last Name' },
+                  { id: 'role', label: 'Phone' },
                   { id: 'isVerified', label: 'Verified', align: 'center' },
-                  { id: 'status', label: 'Status' },
+                  { id: 'status', label: 'Middle Name' },
                   { id: '' },
                 ]}
               />
               <TableBody>
-                {dataFiltered
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                {patients
+                  // .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
                     <UserTableRow
                       key={row.id}
-                      name={row.name}
-                      role={row.role}
-                      status={row.status}
-                      company={row.company}
+                      name={row.first_name}
+                      role={row.phone_number}
+                      status={row.middle_name}
+                      company={row.last_name}
                       avatarUrl={row.avatarUrl}
-                      isVerified={row.isVerified}
-                      selected={selected.indexOf(row.name) !== -1}
-                      handleClick={(event) => handleClick(event, row.name)}
+                      // isVerified={row.isVerified}
+                      // selected={selected.indexOf(row.name) !== -1}
+                      // handleClick={(event) => handleClick(event, row.name)}
                     />
                   ))}
 

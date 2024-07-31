@@ -30,12 +30,13 @@ export default function LoginView() {
     });
 
     response
-      .then(() => {
-        alert('С возвращением');
+      .then((res) => {
+        console.log(res, 'REEESSS');
         navigate('/');
         localStorage.setItem(
           'token',
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6InN1cGVyX2FkbWluIiwiZnVsbG5hbWUiOiJKb2huIERvZSIsImlhdCI6MTcyMTk2ODM1NSwiZXhwIjoxNzIyMDA0MzU1fQ.1TJ7GHLP4JwkTGfW5Zaphxkxj0dZo8nePHNk4_XiC24'
+          res.data.accessToken
+
         );
       })
       .catch((error) => {

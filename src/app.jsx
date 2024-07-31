@@ -6,18 +6,23 @@ import { useScrollToTop } from 'src/hooks/use-scroll-to-top';
 
 import Router from 'src/routes/sections';
 import ThemeProvider from 'src/theme';
+import axios from 'axios';
 
 export default function App() {
 
-  useEffect(() => {
-    fetch('http://192.168.110.136:3001/api/patients')
-      .then((res) => {
-        console.log('Список пациентов загружен', res.headers);
-      })
-      .catch((err) => {
-        alert('Ошибка при загрузке пациентов:', err);
-      })
-  })
+  // useEffect(() => {
+  //   axios.get('http://192.168.110.136:3001/api/patients', {
+  //     headers: {
+  //       'Authorization': `Bearer ${localStorage.getItem('token')}`
+  //     }
+  //   })
+  //     .then((res) => {
+  //       console.log('Список пациентов загружен', res.data.data);
+  //     })
+  //     .catch((err) => {
+  //       console.log('Ошибка при загрузке пациентов:', err);
+  //     })
+  // })
 
   useScrollToTop();
 
