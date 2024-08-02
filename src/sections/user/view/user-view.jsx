@@ -8,7 +8,6 @@ import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
 import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
-import TablePagination from '@mui/material/TablePagination';
 
 import { users } from 'src/_mock/user';
 
@@ -21,6 +20,7 @@ import UserTableHead from '../user-table-head';
 import TableEmptyRows from '../table-empty-rows';
 import UserTableToolbar from '../user-table-toolbar';
 import { emptyRows, applyFilter, getComparator } from '../utils';
+
 import axios from 'axios';
 
 // ----------------------------------------------------------------------
@@ -38,8 +38,6 @@ export default function   UserPage() {
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const [modal, setModal] = useState(false)
-
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === 'asc';
     if (id !== '') {
@@ -56,34 +54,6 @@ export default function   UserPage() {
     }
     setSelected([]);
   };
-
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
-    let newSelected = [];
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
-      );
-    }
-    setSelected(newSelected);
-  };
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setPage(0);
-    setRowsPerPage(parseInt(event.target.value, 10));
-  };
-
   const handleFilterByName = (event) => {
     setPage(0);
     setFilterName(event.target.value);
@@ -97,6 +67,7 @@ export default function   UserPage() {
 
   const notFound = !dataFiltered.length && !!filterName;
   const [patients, setPatients] = useState([])
+  const [error, setError] = useState('')
 
   useEffect(() => {
     axios.get('http://192.168.110.136:3001/api/patients', {
@@ -105,11 +76,10 @@ export default function   UserPage() {
       }
     })
       .then((res) => {
-        console.log(res.data.data);
         setPatients(res.data.data)
       })
       .catch((err) => {
-        console.log('Ошибка при загрузке пациентов:', err);
+        setError(err.message);
       })
   }, [])
 
@@ -132,9 +102,6 @@ export default function   UserPage() {
 
         <Scrollbar>
           <TableContainer sx={{ overflow: 'unset' }}>
-            {/* {patients.map(patient => (
-              <div>{patient.id}</div>
-            ))} */}
             <Table sx={{ minWidth: 800 }}>
               <UserTableHead
                 order={order}
@@ -153,9 +120,7 @@ export default function   UserPage() {
                 ]}
               />
               <TableBody>
-                {patients
-                  // .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((row) => (
+                {patients.map((row) => (
                     <UserTableRow
                       key={row.id}
                       name={row.first_name}
@@ -163,12 +128,8 @@ export default function   UserPage() {
                       status={row.middle_name}
                       company={row.last_name}
                       avatarUrl={row.avatarUrl}
-                      // isVerified={row.isVerified}
-                      // selected={selected.indexOf(row.name) !== -1}
-                      // handleClick={(event) => handleClick(event, row.name)}
                     />
-                  ))}
-
+                ))}
                 <TableEmptyRows
                   height={77}
                   emptyRows={emptyRows(page, rowsPerPage, users.length)}
@@ -179,16 +140,6 @@ export default function   UserPage() {
             </Table>
           </TableContainer>
         </Scrollbar>
-
-        <TablePagination
-          page={page}
-          component="div"
-          count={users.length}
-          rowsPerPage={rowsPerPage}
-          onPageChange={handleChangePage}
-          rowsPerPageOptions={[5, 10, 25]}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
       </Card>
     </Container>
   );
